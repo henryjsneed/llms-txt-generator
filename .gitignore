@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+worker/.venv/
+infra/.venv/
+env/
+
+# Yarn PnP (web)
+web/.pnp
+web/.pnp.*
+web/.yarn/*
+!web/.yarn/patches
+!web/.yarn/plugins
+!web/.yarn/releases
+!web/.yarn/versions
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+coverage/
+.tox/
+.nox/
+hypothesis/
+
+# Next.js / frontend
+web/.next/
+web/out/
+.next/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# npm / yarn / pnpm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+project.txt
+
+# Environment and secrets (committed template documents required keys)
+.env*
+!.env.template
+!**/.env.template
+*.pem
+
+# AWS CDK
+cdk.out/
+.cdk.staging/
+
+# IDE / editor
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
