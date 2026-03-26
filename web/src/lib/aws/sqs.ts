@@ -1,20 +1,19 @@
 import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+import { env } from "../env";
 
 const client = new SQSClient({
-  region: process.env.AWS_REGION || "us-east-1",
+  region: env.region,
 });
 
-const QUEUE_URL = process.env.SQS_QUEUE_URL;
-
 export async function enqueueJob(jobId: string, normalizedUrl: string): Promise<void> {
-  if (!QUEUE_URL) {
+  if (!env.sqsQueueUrl) {
     console.warn(`SQS_QUEUE_URL not set — skipping enqueue for job ${jobId} (local dev mode)`);
     return;
   }
 
   await client.send(
     new SendMessageCommand({
-      QueueUrl: QUEUE_URL,
+      QueueUrl: env.sqsQueueUrl,
       MessageBody: JSON.stringify({ job_id: jobId, url: normalizedUrl }),
     })
   );

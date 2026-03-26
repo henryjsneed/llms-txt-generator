@@ -8,6 +8,7 @@ applications:
             - npm ci
         build:
           commands:
+            - env | grep -e DYNAMODB_TABLE_NAME -e SQS_QUEUE_URL >> .env.production
             - npm run build
       artifacts:
         baseDirectory: .next

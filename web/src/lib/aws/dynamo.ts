@@ -1,15 +1,16 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand, GetCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import type { Job, JobStatus } from "../types";
+import { env } from "../env";
 
 const client = new DynamoDBClient({
-  region: process.env.AWS_REGION || "us-east-1",
-  ...(process.env.DYNAMODB_ENDPOINT && { endpoint: process.env.DYNAMODB_ENDPOINT }),
+  region: env.region,
+  ...(env.dynamoEndpoint && { endpoint: env.dynamoEndpoint }),
 });
 
 const docClient = DynamoDBDocumentClient.from(client);
 
-const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "llms-txt-generator";
+const TABLE_NAME = env.tableName;
 
 export async function createJob(
   jobId: string,
