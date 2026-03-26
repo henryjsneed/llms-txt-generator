@@ -110,6 +110,11 @@ class TestExtractInternalLinks:
         links = extract_internal_links(html, "https://example.com", "example.com")
         assert links == ["https://example.com/games/play/daily-crossword"]
 
+    def test_strips_from_param(self):
+        html = '<a href="/careers/job-123?from=careers">Apply</a>'
+        links = extract_internal_links(html, "https://example.com", "example.com")
+        assert links == ["https://example.com/careers/job-123"]
+
 
 class TestExtractSiteInfo:
     def test_uses_og_site_name(self):

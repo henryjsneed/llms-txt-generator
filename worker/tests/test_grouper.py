@@ -246,3 +246,40 @@ class TestGroupPages:
         sections = group_pages(pages)
         doc = next(s for s in sections if s.name == "Documentation")
         assert doc.pages[0].url == "https://ex.com/docs/intro"
+
+    def test_account_section_demoted_to_optional(self):
+        pages = [
+            _page("https://ex.com/account/settings", title="Settings"),
+            _page("https://ex.com/account/payment", title="Payment"),
+            _page("https://ex.com/account/login", title="Log In"),
+        ]
+        sections = group_pages(pages)
+        acct = next(s for s in sections if "Account" in s.name)
+        assert acct.is_optional is True
+
+    def test_terms_section_demoted_to_optional(self):
+        pages = [
+            _page("https://ex.com/terms", title="Terms of Service"),
+            _page("https://ex.com/terms/privacy", title="Privacy Policy"),
+        ]
+        sections = group_pages(pages)
+        terms = next(s for s in sections if "Terms" in s.name)
+        assert terms.is_optional is True
+
+    def test_profiles_section_capped_and_optional(self):
+        pages = [
+            _page(f"https://ex.com/profiles/person-{i}", title=f"Person {i}")
+            for i in range(8)
+        ]
+        sections = group_pages(pages)
+        profiles = next(s for s in sections if "Profiles" in s.name)
+        assert profiles.is_optional is True
+        assert len(profiles.pages) <= 3
+
+    def test_privacy_section_demoted(self):
+        pages = [
+            _page("https://ex.com/privacy", title="Privacy Policy"),
+        ]
+        sections = group_pages(pages)
+        privacy = next(s for s in sections if "Privac" in s.name)
+        assert privacy.is_optional is True

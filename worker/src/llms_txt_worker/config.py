@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     max_pages: int = 125
     max_depth: int = 3
-    max_concurrency: int = 5
+    max_concurrency: int = 10
     per_request_timeout: int = 10
     total_crawl_timeout: int = 180
     max_response_size: int = 5 * 1024 * 1024

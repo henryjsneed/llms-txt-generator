@@ -208,8 +208,12 @@ class TestSpecCompliance:
         line = next(ln for ln in result.split("\n") if ln.startswith("- "))
         assert line == "- [About Us](https://ex.com/about)"
 
-    def test_url_fallback_for_missing_title(self):
+    def test_page_with_no_title_or_desc_is_omitted(self):
         sections = [
+            GroupedSection(
+                name="Docs",
+                pages=[PageMetadata(url="https://ex.com/docs", title="Docs")],
+            ),
             GroupedSection(
                 name="Other",
                 pages=[PageMetadata(url="https://ex.com/page", title="")],
@@ -217,7 +221,7 @@ class TestSpecCompliance:
         ]
         result = generate_llms_txt("S", "", sections)
         assert_spec_compliant(result)
-        assert "- [https://ex.com/page](https://ex.com/page)" in result
+        assert "ex.com/page" not in result
 
     def test_only_optional_sections(self):
         sections = [
@@ -241,6 +245,107 @@ class TestSpecCompliance:
         result = generate_llms_txt("S", "", sections)
         assert_spec_compliant(result)
         assert "## Empty" not in result
+
+
+class TestTitleSuffixStripping:
+    """Verify site name suffixes are stripped from link titles."""
+
+    def test_strips_pipe_separator(self):
+        sections = [
+            GroupedSection(
+                name="Science",
+                pages=[PageMetadata(url="https://cnn.com/science", title="Science | CNN")],
+            ),
+        ]
+        result = generate_llms_txt("CNN", "News site", sections)
+        assert_spec_compliant(result)
+        assert "- [Science](https://cnn.com/science)" in result
+
+    def test_strips_dash_separator(self):
+        sections = [
+            GroupedSection(
+                name="Pricing",
+                pages=[PageMetadata(url="https://ex.com/pricing", title="Pricing - Profound")],
+            ),
+        ]
+        result = generate_llms_txt("Profound", "AI tool", sections)
+        assert_spec_compliant(result)
+        assert "- [Pricing](https://ex.com/pricing)" in result
+
+    def test_preserves_title_when_no_match(self):
+        sections = [
+            GroupedSection(
+                name="Docs",
+                pages=[PageMetadata(url="https://ex.com/docs", title="Docs - Unrelated Name")],
+            ),
+        ]
+        result = generate_llms_txt("My Site", "", sections)
+        assert_spec_compliant(result)
+        assert "Docs - Unrelated Name" in result
+
+    def test_preserves_title_without_separator(self):
+        sections = [
+            GroupedSection(
+                name="About",
+                pages=[PageMetadata(url="https://ex.com/about", title="About Us")],
+            ),
+        ]
+        result = generate_llms_txt("My Site", "", sections)
+        assert_spec_compliant(result)
+        assert "About Us" in result
+
+
+class TestSkipBareUrls:
+    """Pages with no title and no description should be omitted."""
+
+    def test_skips_page_with_no_title_or_description(self):
+        sections = [
+            GroupedSection(
+                name="Docs",
+                pages=[
+                    PageMetadata(url="https://ex.com/docs", title="Docs"),
+                    PageMetadata(url="https://ex.com/terms", title="", description=""),
+                ],
+            ),
+        ]
+        result = generate_llms_txt("S", "", sections)
+        assert_spec_compliant(result)
+        assert "terms" not in result
+
+    def test_keeps_page_with_description_but_no_title(self):
+        sections = [
+            GroupedSection(
+                name="Docs",
+                pages=[
+                    PageMetadata(
+                        url="https://ex.com/docs",
+                        title="",
+                        description="Full reference docs",
+                    ),
+                ],
+            ),
+        ]
+        result = generate_llms_txt("S", "", sections)
+        assert_spec_compliant(result)
+        assert "Full reference docs" in result
+
+    def test_section_with_only_bare_urls_is_omitted(self):
+        sections = [
+            GroupedSection(
+                name="Legal",
+                pages=[
+                    PageMetadata(url="https://ex.com/terms", title="", description=""),
+                ],
+            ),
+            GroupedSection(
+                name="Docs",
+                pages=[PageMetadata(url="https://ex.com/docs", title="Docs")],
+            ),
+        ]
+        result = generate_llms_txt("S", "", sections)
+        assert_spec_compliant(result)
+        assert "## Legal" not in result
+        assert "## Docs" in result
 
 
 class TestSpecValidatorCatchesViolations:

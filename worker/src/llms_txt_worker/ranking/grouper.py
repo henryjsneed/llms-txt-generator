@@ -54,6 +54,16 @@ _KNOWN_SECTIONS = set(SECTION_ORDER)
 _TITLE_SEPARATORS = re.compile(r"\s*[|–—]\s*")
 _TITLE_KEYWORD_BLOCKLIST_PREFIXES = ("/marketplace",)
 
+_OPTIONAL_PATH_PREFIXES = frozenset({
+    "/account", "/login", "/signin", "/signup", "/register",
+    "/settings", "/terms", "/legal", "/privacy", "/cookie",
+})
+
+_DEMOTED_SECTION_PREFIXES = frozenset({
+    "/profiles", "/people", "/staff", "/contributors", "/authors",
+})
+_DEMOTED_SECTION_MAX_PAGES = 3
+
 MIN_PAGES_FOR_PROMOTED_SECTION = 2
 MAX_PAGES_PER_SECTION = 8
 _ARTICLE_LIKE_SEGMENT_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+){3,}$")
@@ -191,6 +201,17 @@ def group_pages(pages: list[PageMetadata]) -> list[GroupedSection]:
             section.is_optional = True
         elif key not in _KNOWN_SECTIONS and len(section.pages) < MIN_PAGES_FOR_PROMOTED_SECTION:
             section.is_optional = True
+
+    for section in sections.values():
+        if section.is_optional:
+            continue
+        sample_path = urlparse(section.pages[0].url).path.lower().rstrip("/") if section.pages else ""
+        first_segment = "/" + sample_path.split("/")[1] if sample_path.count("/") >= 1 and sample_path.split("/")[1] else ""
+        if first_segment in _OPTIONAL_PATH_PREFIXES:
+            section.is_optional = True
+        if first_segment in _DEMOTED_SECTION_PREFIXES:
+            section.is_optional = True
+            section.pages = section.pages[:_DEMOTED_SECTION_MAX_PAGES]
 
     ordered: list[GroupedSection] = []
     for name in SECTION_ORDER:

@@ -59,6 +59,7 @@ _TRACKING_QUERY_KEYS: frozenset[str] = frozenset({
     "rb_clickid",
     "wickedid",
     # Generic referral / attribution
+    "from",
     "ref",
     "ref_",
     "ref_src",
