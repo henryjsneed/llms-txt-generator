@@ -4,6 +4,7 @@ from aws_cdk import (
     RemovalPolicy,
     Stack,
     aws_dynamodb as dynamodb,
+    aws_ecr_assets as ecr_assets,
     aws_iam as iam,
     aws_lambda as lambda_,
     aws_lambda_event_sources as event_sources,
@@ -47,7 +48,11 @@ class BackendStack(Stack):
             self,
             "WorkerFunction",
             function_name="llms-txt-worker",
-            code=lambda_.DockerImageCode.from_image_asset("../worker"),
+            architecture=lambda_.Architecture.X86_64,
+            code=lambda_.DockerImageCode.from_image_asset(
+                "../worker",
+                platform=ecr_assets.Platform.LINUX_AMD64,
+            ),
             memory_size=1024,
             timeout=Duration.minutes(5),
             environment={
