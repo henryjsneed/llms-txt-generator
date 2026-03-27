@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     max_depth: int = 3
     max_concurrency: int = 5
     per_request_timeout: int = 10
-    total_crawl_timeout: int = 180
+    total_crawl_timeout: int = 360
     max_response_size: int = 5 * 1024 * 1024
 
     model_config = {"env_prefix": ""}

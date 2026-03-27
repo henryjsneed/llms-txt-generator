@@ -48,12 +48,12 @@ class BackendStack(Stack):
             self,
             "GeneratorFunction",
             function_name="llms-txt-generator",
-            architecture=lambda_.Architecture.X86_64,
+            architecture=lambda_.Architecture.ARM_64,
             code=lambda_.DockerImageCode.from_image_asset(
                 "../generator",
-                platform=ecr_assets.Platform.LINUX_AMD64,
+                platform=ecr_assets.Platform.LINUX_ARM64,
             ),
-            memory_size=1024,
+            memory_size=3008,
             timeout=Duration.minutes(5),
             environment={
                 "DYNAMODB_TABLE_NAME": table.table_name,

@@ -86,7 +86,7 @@ docker compose up -d
 cd frontend
 cp ../.env.template .env.local
 npm install
-npm run dev                       # http://localhost:3000
+npm run dev # http://localhost:3000
 
 # Terminal 3 — Python generator
 cd generator
@@ -105,14 +105,16 @@ cd generator && source .venv/bin/activate && pytest tests/ -v
 
 ### Environment Variables
 
-See [`.env.template`](.env.template) for the canonical list. Copy to `frontend/.env.local` for local dev; set the same keys in Amplify for production.
+See `[.env.template](.env.template)` for the canonical list. Copy to `frontend/.env.local` for local dev; set the same keys in Amplify for production.
+
 
 | Variable              | Description                        | Example                                   |
 | --------------------- | ---------------------------------- | ----------------------------------------- |
 | `AWS_REGION`          | AWS region                         | `us-west-2`                               |
 | `DYNAMODB_TABLE_NAME` | DynamoDB table name                | `llms-txt-generator`                      |
 | `SQS_QUEUE_URL`       | SQS queue URL                      | `https://sqs.us-west-2.amazonaws.com/...` |
-| `DYNAMODB_ENDPOINT`   | Local DynamoDB endpoint (dev only) | `http://localhost:8000`                    |
+| `DYNAMODB_ENDPOINT`   | Local DynamoDB endpoint (dev only) | `http://localhost:8000`                   |
+
 
 ## Deployment
 
@@ -163,15 +165,17 @@ llms-txt-generator/
 
 ## Crawl Bounds
 
-| Parameter        | Default | Description                                   |
-| ---------------- | ------- | --------------------------------------------- |
+
+| Parameter        | Default | Description                                    |
+| ---------------- | ------- | ---------------------------------------------- |
 | Max pages        | 300     | Total pages crawled per job                    |
 | Max depth        | 3       | Link-following depth from homepage             |
 | Concurrency      | 5       | Simultaneous HTTP requests                     |
 | Per-prefix quota | 10      | Max pages from the same top-level path segment |
 | Request timeout  | 10s     | Per-request limit                              |
-| Crawl timeout    | 180s    | Total time budget for the entire crawl         |
+| Crawl timeout    | 360s    | Total time budget for the entire crawl         |
 | Response size    | 5 MB    | Max body size per page                         |
+
 
 ## Future Work
 
@@ -181,3 +185,4 @@ llms-txt-generator/
 - CloudWatch alarms on DLQ depth and Lambda errors
 - DLQ consumer for inspecting and retrying failed jobs
 - CDK-managed Amplify provisioning
+

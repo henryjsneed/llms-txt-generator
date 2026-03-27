@@ -8,6 +8,7 @@ import asyncio
 import ipaddress
 import logging
 import socket
+import errno
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
@@ -73,10 +74,23 @@ def validate_url(url: str) -> None:
 async def resolve_and_validate(hostname: str) -> list[str]:
     """Resolve hostname to IPs and validate none are in blocked ranges."""
     loop = asyncio.get_running_loop()
-    try:
-        addrinfo = await loop.getaddrinfo(hostname, None, family=socket.AF_UNSPEC)
-    except socket.gaierror as exc:
-        raise SSRFError(f"DNS resolution failed for {hostname}: {exc}") from exc
+    addrinfo = None
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        try:
+            addrinfo = await loop.getaddrinfo(hostname, None, family=socket.AF_UNSPEC)
+            break
+        except OSError as exc:
+            # some environments intermittently raise EBUSY from getaddrinfo
+            if exc.errno == errno.EBUSY and attempt < (max_attempts - 1):
+                await asyncio.sleep(0.05 * (2**attempt))
+                continue
+            raise SSRFError(f"DNS resolution failed for {hostname}: {exc}") from exc
+        except socket.gaierror as exc:
+            raise SSRFError(f"DNS resolution failed for {hostname}: {exc}") from exc
+
+    if addrinfo is None:
+        raise SSRFError(f"DNS resolution failed for {hostname}")
 
     ips = list({info[4][0] for info in addrinfo})
     if not ips:

@@ -1,7 +1,13 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 
-from llms_txt_generator.crawler.fetcher import SSRFError, _is_blocked_ip, validate_url
-
+from llms_txt_generator.crawler.fetcher import (
+    SSRFError,
+    _is_blocked_ip,
+    resolve_and_validate,
+    validate_url,
+)
 
 class TestIsBlockedIP:
     def test_loopback(self):
@@ -76,3 +82,26 @@ class TestValidateUrl:
 
     def test_normal_url_passes(self):
         validate_url("https://docs.stripe.com/api")
+
+
+class TestResolveAndValidate:
+    async def test_retries_on_ebusy_and_succeeds(self):
+        loop = MagicMock()
+        loop.getaddrinfo = AsyncMock(
+            side_effect=[
+                OSError(16, "Device or resource busy"),
+                [(None, None, None, None, ("93.184.216.34", 0))],
+            ]
+        )
+        with patch("asyncio.get_running_loop", return_value=loop):
+            ips = await resolve_and_validate("example.com")
+        assert ips == ["93.184.216.34"]
+        assert loop.getaddrinfo.await_count == 2
+
+    async def test_raises_ssrf_error_after_retries(self):
+        loop = MagicMock()
+        loop.getaddrinfo = AsyncMock(side_effect=OSError(16, "Device or resource busy"))
+        with patch("asyncio.get_running_loop", return_value=loop):
+            with pytest.raises(SSRFError, match="DNS resolution failed"):
+                await resolve_and_validate("example.com")
+        assert loop.getaddrinfo.await_count == 5
