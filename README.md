@@ -176,11 +176,18 @@ llms-txt-generator/
 | Crawl timeout    | 360s    | Total time budget for the entire crawl         |
 | Response size    | 5 MB    | Max body size per page                         |
 
+## Screenshots
+### Frontend
+![Frontend demo](demo-frontend.png)
+### Output
+![Output](demo-output.png)
+### Error handling
+![Error demo](demo-error.png)
+
 
 ## Future Work
 
 - Result caching for recently-crawled domains
-- `llms-full.txt` generation with expanded page contents
 - Granular crawl progress in the UI (percentage, current section)
 - CloudWatch alarms on DLQ depth and Lambda errors
 - DLQ consumer for inspecting and retrying failed jobs
