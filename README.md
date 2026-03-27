@@ -176,6 +176,9 @@ llms-txt-generator/
 | Crawl timeout    | 360s    | Total time budget for the entire crawl         |
 | Response size    | 5 MB    | Max body size per page                         |
 
+
+### [View Demo Video](https://youtu.be/qLuiwPm7w94)
+
 ## Screenshots
 ### Frontend
 ![Frontend demo](demo-frontend.png)
