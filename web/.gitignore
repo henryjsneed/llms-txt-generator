@@ -1,3 +1,0 @@
-# Ignore rules for this repo live in the root `.gitignore` (monorepo).
-# This file stays so the `web/` app has an obvious place for web-only
-# exceptions; Next.js upgrades may rewrite it—merge any new lines upward.

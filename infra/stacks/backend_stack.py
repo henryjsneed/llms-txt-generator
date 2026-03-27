@@ -44,27 +44,27 @@ class BackendStack(Stack):
             dead_letter_queue=sqs.DeadLetterQueue(max_receive_count=3, queue=dlq),
         )
 
-        worker_fn = lambda_.DockerImageFunction(
+        generator_fn = lambda_.DockerImageFunction(
             self,
-            "WorkerFunction",
-            function_name="llms-txt-worker",
+            "GeneratorFunction",
+            function_name="llms-txt-generator",
             architecture=lambda_.Architecture.X86_64,
             code=lambda_.DockerImageCode.from_image_asset(
-                "../worker",
+                "../generator",
                 platform=ecr_assets.Platform.LINUX_AMD64,
             ),
             memory_size=1024,
             timeout=Duration.minutes(5),
             environment={
-                "TABLE_NAME": table.table_name,
+                "DYNAMODB_TABLE_NAME": table.table_name,
             },
         )
 
-        worker_fn.add_event_source(
+        generator_fn.add_event_source(
             event_sources.SqsEventSource(queue, batch_size=1)
         )
 
-        table.grant_read_write_data(worker_fn)
+        table.grant_read_write_data(generator_fn)
 
         amplify_policy = iam.ManagedPolicy(
             self,
@@ -72,7 +72,12 @@ class BackendStack(Stack):
             managed_policy_name="llms-txt-amplify-policy",
             statements=[
                 iam.PolicyStatement(
-                    actions=["dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:DeleteItem"],
+                    actions=[
+                        "dynamodb:PutItem",
+                        "dynamodb:GetItem",
+                        "dynamodb:DeleteItem",
+                        "dynamodb:UpdateItem",
+                    ],
                     resources=[table.table_arn],
                 ),
                 iam.PolicyStatement(

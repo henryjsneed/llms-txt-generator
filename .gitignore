@@ -2,18 +2,18 @@
 node_modules/
 .venv/
 venv/
-worker/.venv/
+generator/.venv/
 infra/.venv/
 env/
 
-# Yarn PnP (web)
-web/.pnp
-web/.pnp.*
-web/.yarn/*
-!web/.yarn/patches
-!web/.yarn/plugins
-!web/.yarn/releases
-!web/.yarn/versions
+# Yarn PnP (frontend)
+frontend/.pnp
+frontend/.pnp.*
+frontend/.yarn/*
+!frontend/.yarn/patches
+!frontend/.yarn/plugins
+!frontend/.yarn/releases
+!frontend/.yarn/versions
 
 # Python
 __pycache__/
@@ -39,8 +39,8 @@ coverage/
 hypothesis/
 
 # Next.js / frontend
-web/.next/
-web/out/
+frontend/.next/
+frontend/out/
 .next/
 .turbo/
 *.tsbuildinfo
